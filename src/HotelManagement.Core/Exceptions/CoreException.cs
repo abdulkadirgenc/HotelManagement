@@ -1,18 +1,19 @@
-﻿namespace HotelManagement.Core.Exceptions;
-
-public class CoreException : Exception
+﻿namespace HotelManagement.Core.Exceptions
 {
-    internal CoreException()
+    public class CoreException : Exception
     {
-    }
+        internal CoreException()
+        {
+        }
 
-    internal CoreException(string message)
-        : base(message)
-    {
-    }
+        internal CoreException(string message)
+            : base(message)
+        {
+        }
 
-    internal CoreException(string message, Exception innerException)
-        : base(message, innerException)
-    {
+        internal CoreException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
     }
 }

@@ -1,5 +1,6 @@
-﻿namespace HotelManagement.Core.Entities.Base;
-
-public abstract class Entity : EntityBase<int>
+﻿namespace HotelManagement.Core.Entities.Base
 {
+    public abstract class Entity : EntityBase<int>
+    {
+    }
 }

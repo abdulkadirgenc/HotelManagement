@@ -1,43 +1,44 @@
 ﻿using HotelManagement.Core.Paging;
 using System.Linq.Expressions;
 
-namespace HotelManagement.Infrastructure.Paging;
-
-public static class PagingExtensions
+namespace HotelManagement.Infrastructure.Paging
 {
-    public static IQueryable<T> OrderBy<T>(this IQueryable<T> query, List<Tuple<SortingOption, Expression<Func<T, object>>>> orderByList)
+    public static class PagingExtensions
     {
-        if (orderByList == null)
-            return query;
-
-        orderByList = orderByList.OrderBy(ob => ob.Item1.Priority).ToList();
-
-        IOrderedQueryable<T> orderedQuery = null;
-        foreach (var orderBy in orderByList)
+        public static IQueryable<T> OrderBy<T>(this IQueryable<T> query, List<Tuple<SortingOption, Expression<Func<T, object>>>> orderByList)
         {
-            if (orderedQuery == null)
+            if (orderByList == null)
+                return query;
+
+            orderByList = orderByList.OrderBy(ob => ob.Item1.Priority).ToList();
+
+            IOrderedQueryable<T> orderedQuery = null;
+            foreach (var orderBy in orderByList)
             {
-                orderedQuery = orderBy.Item1.Direction == SortingOption.SortingDirection.ASC ? query.OrderBy(orderBy.Item2) : query.OrderByDescending(orderBy.Item2);
+                if (orderedQuery == null)
+                {
+                    orderedQuery = orderBy.Item1.Direction == SortingOption.SortingDirection.ASC ? query.OrderBy(orderBy.Item2) : query.OrderByDescending(orderBy.Item2);
+                }
+                else
+                {
+                    orderedQuery = orderBy.Item1.Direction == SortingOption.SortingDirection.ASC ? orderedQuery.ThenBy(orderBy.Item2) : orderedQuery.ThenByDescending(orderBy.Item2);
+                }
             }
-            else
-            {
-                orderedQuery = orderBy.Item1.Direction == SortingOption.SortingDirection.ASC ? orderedQuery.ThenBy(orderBy.Item2) : orderedQuery.ThenByDescending(orderBy.Item2);
-            }
+
+            return orderedQuery ?? query;
         }
 
-        return orderedQuery ?? query;
-    }
-
-    public static IQueryable<T> Where<T>(this IQueryable<T> query, List<Tuple<FilteringOption, Expression<Func<T, bool>>>> filterList)
-    {
-        if (filterList == null)
-            return query;
-
-        foreach (var filter in filterList)
+        public static IQueryable<T> Where<T>(this IQueryable<T> query, List<Tuple<FilteringOption, Expression<Func<T, bool>>>> filterList)
         {
-            query = query.Where(filter.Item2);
-        }
+            if (filterList == null)
+                return query;
 
-        return query;
+            foreach (var filter in filterList)
+            {
+                query = query.Where(filter.Item2);
+            }
+
+            return query;
+        }
     }
 }

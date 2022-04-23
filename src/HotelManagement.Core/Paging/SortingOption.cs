@@ -1,16 +1,17 @@
-﻿namespace HotelManagement.Core.Paging;
-
-public class SortingOption
+﻿namespace HotelManagement.Core.Paging
 {
-    public string Field { get; set; }
-
-    public SortingDirection Direction { get; set; }
-
-    public int Priority { get; set; }
-
-    public enum SortingDirection
+    public class SortingOption
     {
-        ASC,
-        DESC
+        public string Field { get; set; }
+
+        public SortingDirection Direction { get; set; }
+
+        public int Priority { get; set; }
+
+        public enum SortingDirection
+        {
+            ASC,
+            DESC
+        }
     }
 }

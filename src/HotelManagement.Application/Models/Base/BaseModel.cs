@@ -1,6 +1,7 @@
-﻿namespace HotelManagement.Application.Models.Base;
-
-public class BaseModel
+﻿namespace HotelManagement.Application.Models.Base
 {
-    public int Id { get; set; }
+    public class BaseModel
+    {
+        public int Id { get; set; }
+    }
 }

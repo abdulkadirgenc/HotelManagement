@@ -1,10 +1,11 @@
-﻿namespace HotelManagement.Core.Paging;
-
-public class PagingArgs
+﻿namespace HotelManagement.Core.Paging
 {
-    public int PageIndex { get; set; }
+    public class PagingArgs
+    {
+        public int PageIndex { get; set; }
 
-    public int PageSize { get; set; }
+        public int PageSize { get; set; }
 
-    public PagingStrategy PagingStrategy { get; set; }
+        public PagingStrategy PagingStrategy { get; set; }
+    }
 }

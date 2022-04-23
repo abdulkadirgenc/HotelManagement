@@ -2,42 +2,43 @@
 using HotelManagement.Core.Specifications.Base;
 using Microsoft.EntityFrameworkCore;
 
-namespace HotelManagement.Infrastructure.Repository.Base;
-
-public class SpecificationEvaluator<T, TId> where T : class, IEntityBase<TId>
+namespace HotelManagement.Infrastructure.Repository.Base
 {
-    public static IQueryable<T> GetQuery(IQueryable<T> inputQuery, ISpecification<T> specification)
+    public class SpecificationEvaluator<T, TId> where T : class, IEntityBase<TId>
     {
-        var query = inputQuery;
-
-        // modify the IQueryable using the specification's criteria expression
-        if (specification.Criteria != null)
+        public static IQueryable<T> GetQuery(IQueryable<T> inputQuery, ISpecification<T> specification)
         {
-            query = query.Where(specification.Criteria);
-        }
+            var query = inputQuery;
 
-        // Includes all expression-based includes
-        query = specification.Includes.Aggregate(query, (current, include) => current.Include(include));
+            // modify the IQueryable using the specification's criteria expression
+            if (specification.Criteria != null)
+            {
+                query = query.Where(specification.Criteria);
+            }
 
-        // Include any string-based include statements
-        query = specification.IncludeStrings.Aggregate(query, (current, include) => current.Include(include));
+            // Includes all expression-based includes
+            query = specification.Includes.Aggregate(query, (current, include) => current.Include(include));
 
-        // Apply ordering if expressions are set
-        if (specification.OrderBy != null)
-        {
-            query = query.OrderBy(specification.OrderBy);
-        }
-        else if (specification.OrderByDescending != null)
-        {
-            query = query.OrderByDescending(specification.OrderByDescending);
-        }
+            // Include any string-based include statements
+            query = specification.IncludeStrings.Aggregate(query, (current, include) => current.Include(include));
 
-        // Apply paging if enabled
-        if (specification.isPagingEnabled)
-        {
-            query = query.Skip(specification.Skip)
-                         .Take(specification.Take);
+            // Apply ordering if expressions are set
+            if (specification.OrderBy != null)
+            {
+                query = query.OrderBy(specification.OrderBy);
+            }
+            else if (specification.OrderByDescending != null)
+            {
+                query = query.OrderByDescending(specification.OrderByDescending);
+            }
+
+            // Apply paging if enabled
+            if (specification.isPagingEnabled)
+            {
+                query = query.Skip(specification.Skip)
+                             .Take(specification.Take);
+            }
+            return query;
         }
-        return query;
     }
 }

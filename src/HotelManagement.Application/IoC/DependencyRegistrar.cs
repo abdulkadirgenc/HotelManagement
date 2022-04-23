@@ -4,15 +4,16 @@ using HotelManagement.Infrastructure.Misc;
 using Autofac;
 using HotelManagement.Application.Interfaces;
 
-namespace HotelManagement.Application.IoC;
-
-public class DependencyRegistrar : IDependencyRegistrar
+namespace HotelManagement.Application.IoC
 {
-    public void Register(ContainerBuilder builder, ITypeFinder typeFinder)
+    public class DependencyRegistrar : IDependencyRegistrar
     {
-        // services
-        builder.RegisterType<HotelService>().As<IHotelService>().InstancePerLifetimeScope();
-    }
+        public void Register(ContainerBuilder builder, ITypeFinder typeFinder)
+        {
+            // services
+            builder.RegisterType<HotelService>().As<IHotelService>().InstancePerLifetimeScope();
+        }
 
-    public int Order => 2;
+        public int Order => 2;
+    }
 }

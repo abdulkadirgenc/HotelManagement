@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-
-namespace HotelManagement.Api.Application.Middlewares
+﻿namespace HotelManagement.Api.Application.Middlewares
 {
     public class LoggingMiddleware
     {

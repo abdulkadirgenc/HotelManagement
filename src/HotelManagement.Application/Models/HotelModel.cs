@@ -1,5 +1,4 @@
 ﻿using HotelManagement.Application.Models.Base;
-using System;
 
 namespace HotelManagement.Application.Models
 {

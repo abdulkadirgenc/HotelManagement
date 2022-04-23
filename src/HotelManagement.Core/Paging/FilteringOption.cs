@@ -1,31 +1,32 @@
-﻿namespace HotelManagement.Core.Paging;
-
-public class FilteringOption
+﻿namespace HotelManagement.Core.Paging
 {
-    public string Field { get; set; }
-
-    public FilteringOperator Operator { get; set; }
-
-    public object Value { get; set; }
-
-    public enum FilteringOperator
+    public class FilteringOption
     {
-        //Empty,
-        Contains,
-        Not_Contains,
-        LT,
-        LE,
-        GT,
-        GE,
-        NE,
-        EQ,
-        StartsWith,
-        EndsWith,
-        RangeInclusive,
-        RangeExclusive,
-        IN,
-        NOT_IN,
-        IN_CONTAINS,
-        NOT_IN_CONTAINS
+        public string Field { get; set; }
+
+        public FilteringOperator Operator { get; set; }
+
+        public object Value { get; set; }
+
+        public enum FilteringOperator
+        {
+            //Empty,
+            Contains,
+            Not_Contains,
+            LT,
+            LE,
+            GT,
+            GE,
+            NE,
+            EQ,
+            StartsWith,
+            EndsWith,
+            RangeInclusive,
+            RangeExclusive,
+            IN,
+            NOT_IN,
+            IN_CONTAINS,
+            NOT_IN_CONTAINS
+        }
     }
 }

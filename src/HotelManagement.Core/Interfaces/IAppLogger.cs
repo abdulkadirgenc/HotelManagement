@@ -1,7 +1,8 @@
-﻿namespace HotelManagement.Core.Interfaces;
-
-public interface IAppLogger<T>
+﻿namespace HotelManagement.Core.Interfaces
 {
-    void LogInformation(string message, params object[] args);
-    void LogWarning(string message, params object[] args);
+    public interface IAppLogger<T>
+    {
+        void LogInformation(string message, params object[] args);
+        void LogWarning(string message, params object[] args);
+    }
 }

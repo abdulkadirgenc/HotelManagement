@@ -1,7 +1,8 @@
-﻿namespace HotelManagement.Core.Paging;
-
-public enum PagingStrategy
+﻿namespace HotelManagement.Core.Paging
 {
-    WithCount = 0,
-    NoCount = 1
+    public enum PagingStrategy
+    {
+        WithCount = 0,
+        NoCount = 1
+    }
 }

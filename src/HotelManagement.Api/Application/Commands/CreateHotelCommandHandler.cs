@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using HotelManagement.Api.Requests;
+﻿using HotelManagement.Api.Requests;
 using HotelManagement.Application.Interfaces;
 using HotelManagement.Application.Models;
 using MediatR;

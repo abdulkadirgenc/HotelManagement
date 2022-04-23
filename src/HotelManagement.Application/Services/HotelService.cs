@@ -8,106 +8,107 @@ using HotelManagement.Infrastructure.Paging;
 using HotelManagement.Application.Interfaces;
 using HotelManagement.Core.Specifications;
 
-namespace HotelManagement.Application.Services;
-
-public class HotelService : IHotelService
+namespace HotelManagement.Application.Services
 {
-    private readonly IHotelRepository _hotelRepository;
-    private readonly IAppLogger<HotelService> _logger;
-
-    public HotelService(IHotelRepository hotelRepository, IAppLogger<HotelService> logger)
+    public class HotelService : IHotelService
     {
-        _hotelRepository = hotelRepository ?? throw new ArgumentNullException(nameof(hotelRepository));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
+        private readonly IHotelRepository _hotelRepository;
+        private readonly IAppLogger<HotelService> _logger;
 
-    public async Task<IEnumerable<HotelModel>> GetHotelList()
-    {
-        var hotelList = await _hotelRepository.ListAllAsync();
-
-        var hotelModels = ObjectMapper.Mapper.Map<IEnumerable<HotelModel>>(hotelList);
-
-        return hotelModels;
-    }
-
-    public async Task<IPagedList<HotelModel>> SearchHotels(PageSearchArgs args)
-    {
-        var hotelPagedList = await _hotelRepository.SearchHotelsAsync(args);
-
-        //TODO: PagedList<TSource> will be mapped to PagedList<TDestination>;
-        var hotelModels = ObjectMapper.Mapper.Map<List<HotelModel>>(hotelPagedList.Items);
-
-        var hotelModelPagedList = new PagedList<HotelModel>(
-            hotelPagedList.PageIndex,
-            hotelPagedList.PageSize,
-            hotelPagedList.TotalCount,
-            hotelPagedList.TotalPages,
-            hotelModels);
-
-        return hotelModelPagedList;
-    }
-
-    public async Task<HotelModel> GetHotelById(int hotelId)
-    {
-        var hotel = await _hotelRepository.GetByIdAsync(hotelId);
-
-        var hotelModel = ObjectMapper.Mapper.Map<HotelModel>(hotel);
-
-        return hotelModel;
-    }
-
-    public async Task<IEnumerable<HotelModel>> GetHotelsByName(string name)
-    {
-        var spec = new HotelSpecification(name);
-        var hotelList = await _hotelRepository.GetAsync(spec);
-
-        var hotelModels = ObjectMapper.Mapper.Map<IEnumerable<HotelModel>>(hotelList);
-
-        return hotelModels;
-    }
-
-    public async Task<HotelModel> CreateHotel(HotelModel hotel)
-    {
-        var existingHotel = await _hotelRepository.GetByIdAsync(hotel.Id);
-        if (existingHotel != null)
+        public HotelService(IHotelRepository hotelRepository, IAppLogger<HotelService> logger)
         {
-            throw new ApplicationException("Hotel with this id already exists");
+            _hotelRepository = hotelRepository ?? throw new ArgumentNullException(nameof(hotelRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        var newHotel = ObjectMapper.Mapper.Map<Hotel>(hotel);
-        newHotel = await _hotelRepository.SaveAsync(newHotel);
-
-        _logger.LogInformation("Entity successfully added - HotelManagementAppService");
-
-        var newHotelModel = ObjectMapper.Mapper.Map<HotelModel>(newHotel);
-        return newHotelModel;
-    }
-
-    public async Task UpdateHotel(HotelModel hotel)
-    {
-        var existingHotel = await _hotelRepository.GetByIdAsync(hotel.Id);
-        if (existingHotel == null)
+        public async Task<IEnumerable<HotelModel>> GetHotelList()
         {
-            throw new ApplicationException("Hotel with this id is not exists");
+            var hotelList = await _hotelRepository.ListAllAsync();
+
+            var hotelModels = ObjectMapper.Mapper.Map<IEnumerable<HotelModel>>(hotelList);
+
+            return hotelModels;
         }
 
-        existingHotel.Name = hotel.Name;
-
-        await _hotelRepository.SaveAsync(existingHotel);
-
-        _logger.LogInformation("Entity successfully updated - HotelManagementAppService");
-    }
-
-    public async Task DeleteHotelById(int hotelId)
-    {
-        var existingHotel = await _hotelRepository.GetByIdAsync(hotelId);
-        if (existingHotel == null)
+        public async Task<IPagedList<HotelModel>> SearchHotels(PageSearchArgs args)
         {
-            throw new ApplicationException("Hotel with this id is not exists");
+            var hotelPagedList = await _hotelRepository.SearchHotelsAsync(args);
+
+            //TODO: PagedList<TSource> will be mapped to PagedList<TDestination>;
+            var hotelModels = ObjectMapper.Mapper.Map<List<HotelModel>>(hotelPagedList.Items);
+
+            var hotelModelPagedList = new PagedList<HotelModel>(
+                hotelPagedList.PageIndex,
+                hotelPagedList.PageSize,
+                hotelPagedList.TotalCount,
+                hotelPagedList.TotalPages,
+                hotelModels);
+
+            return hotelModelPagedList;
         }
 
-        await _hotelRepository.DeleteAsync(existingHotel);
+        public async Task<HotelModel> GetHotelById(int hotelId)
+        {
+            var hotel = await _hotelRepository.GetByIdAsync(hotelId);
 
-        _logger.LogInformation("Entity successfully deleted - HotelManagementAppService");
+            var hotelModel = ObjectMapper.Mapper.Map<HotelModel>(hotel);
+
+            return hotelModel;
+        }
+
+        public async Task<IEnumerable<HotelModel>> GetHotelsByName(string name)
+        {
+            var spec = new HotelSpecification(name);
+            var hotelList = await _hotelRepository.GetAsync(spec);
+
+            var hotelModels = ObjectMapper.Mapper.Map<IEnumerable<HotelModel>>(hotelList);
+
+            return hotelModels;
+        }
+
+        public async Task<HotelModel> CreateHotel(HotelModel hotel)
+        {
+            var existingHotel = await _hotelRepository.GetByIdAsync(hotel.Id);
+            if (existingHotel != null)
+            {
+                throw new ApplicationException("Hotel with this id already exists");
+            }
+
+            var newHotel = ObjectMapper.Mapper.Map<Hotel>(hotel);
+            newHotel = await _hotelRepository.SaveAsync(newHotel);
+
+            _logger.LogInformation("Entity successfully added - HotelManagementAppService");
+
+            var newHotelModel = ObjectMapper.Mapper.Map<HotelModel>(newHotel);
+            return newHotelModel;
+        }
+
+        public async Task UpdateHotel(HotelModel hotel)
+        {
+            var existingHotel = await _hotelRepository.GetByIdAsync(hotel.Id);
+            if (existingHotel == null)
+            {
+                throw new ApplicationException("Hotel with this id is not exists");
+            }
+
+            existingHotel.Name = hotel.Name;
+
+            await _hotelRepository.SaveAsync(existingHotel);
+
+            _logger.LogInformation("Entity successfully updated - HotelManagementAppService");
+        }
+
+        public async Task DeleteHotelById(int hotelId)
+        {
+            var existingHotel = await _hotelRepository.GetByIdAsync(hotelId);
+            if (existingHotel == null)
+            {
+                throw new ApplicationException("Hotel with this id is not exists");
+            }
+
+            await _hotelRepository.DeleteAsync(existingHotel);
+
+            _logger.LogInformation("Entity successfully deleted - HotelManagementAppService");
+        }
     }
 }

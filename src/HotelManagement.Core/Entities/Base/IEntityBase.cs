@@ -1,6 +1,7 @@
-﻿namespace HotelManagement.Core.Entities.Base;
-
-public interface IEntityBase<TId>
+﻿namespace HotelManagement.Core.Entities.Base
 {
-    TId Id { get; }
+    public interface IEntityBase<TId>
+    {
+        TId Id { get; }
+    }
 }

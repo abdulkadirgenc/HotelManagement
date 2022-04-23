@@ -5,122 +5,123 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Reflection;
 
-namespace HotelManagement.Infrastructure.Data;
-
-public class HotelManagementContext : IdentityDbContext<HotelManagementUser, HotelManagementRole, int>
+namespace HotelManagement.Infrastructure.Data
 {
-    public HotelManagementContext(DbContextOptions<HotelManagementContext> options)
-        : base(options)
+    public class HotelManagementContext : IdentityDbContext<HotelManagementUser, HotelManagementRole, int>
     {
-    }
-
-    private IDbContextTransaction _currentTransaction;
-    public IDbContextTransaction GetCurrentTransaction => _currentTransaction;
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        var typeToRegisters = typeof(Entity).GetTypeInfo().Assembly.DefinedTypes.Select(t => t.AsType());
-
-        modelBuilder.RegisterEntities(typeToRegisters);
-
-        modelBuilder.RegisterConvention();
-
-        base.OnModelCreating(modelBuilder);
-
-        modelBuilder.RegisterCustomMappings(typeToRegisters);
-    }
-
-    public async Task BeginTransactionAsync()
-    {
-        _currentTransaction = _currentTransaction ?? await Database.BeginTransactionAsync();
-    }
-
-    public async Task CommitTransactionAsync()
-    {
-        try
+        public HotelManagementContext(DbContextOptions<HotelManagementContext> options)
+            : base(options)
         {
-            await SaveChangesAsync();
-            _currentTransaction?.Commit();
         }
-        catch
+
+        private IDbContextTransaction _currentTransaction;
+        public IDbContextTransaction GetCurrentTransaction => _currentTransaction;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            RollbackTransaction();
-            throw;
+            var typeToRegisters = typeof(Entity).GetTypeInfo().Assembly.DefinedTypes.Select(t => t.AsType());
+
+            modelBuilder.RegisterEntities(typeToRegisters);
+
+            modelBuilder.RegisterConvention();
+
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.RegisterCustomMappings(typeToRegisters);
         }
-        finally
+
+        public async Task BeginTransactionAsync()
         {
-            if (_currentTransaction != null)
+            _currentTransaction = _currentTransaction ?? await Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            try
             {
-                _currentTransaction.Dispose();
-                _currentTransaction = null;
+                await SaveChangesAsync();
+                _currentTransaction?.Commit();
             }
-        }
-    }
-
-    public void RollbackTransaction()
-    {
-        try
-        {
-            _currentTransaction?.Rollback();
-        }
-        finally
-        {
-            if (_currentTransaction != null)
+            catch
             {
-                _currentTransaction.Dispose();
-                _currentTransaction = null;
+                RollbackTransaction();
+                throw;
             }
-        }
-    }
-}
-
-static class HotelManagementContextConfigurations
-{
-    internal static void RegisterEntities(this ModelBuilder modelBuilder, IEnumerable<Type> typeToRegisters)
-    {
-        var entityTypes = typeToRegisters.Where(t => (t.GetTypeInfo().IsSubclassOf(typeof(Entity)) || t.GetTypeInfo().IsSubclassOf(typeof(Enumeration))) && !t.GetTypeInfo().IsAbstract);
-
-        foreach (var type in entityTypes)
-        {
-            modelBuilder.Entity(type);
-        }
-    }
-
-    internal static void RegisterConvention(this ModelBuilder modelBuilder)
-    {
-        foreach (var entity in modelBuilder.Model.GetEntityTypes())
-        {
-            if (entity.ClrType.Namespace != null)
+            finally
             {
-                var tableName = entity.ClrType.Name;
-                var typeBuilder = modelBuilder.Entity(entity.Name);
-                typeBuilder.ToTable(tableName);
-
-                if (entity.ClrType.IsSubclassOf(typeof(Entity)))
+                if (_currentTransaction != null)
                 {
-                }
-                else if (entity.ClrType.IsSubclassOf(typeof(Enumeration)))
-                {
-                    typeBuilder.Property("Id").ValueGeneratedNever();
+                    _currentTransaction.Dispose();
+                    _currentTransaction = null;
                 }
             }
         }
 
-        foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+        public void RollbackTransaction()
         {
-            relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            try
+            {
+                _currentTransaction?.Rollback();
+            }
+            finally
+            {
+                if (_currentTransaction != null)
+                {
+                    _currentTransaction.Dispose();
+                    _currentTransaction = null;
+                }
+            }
         }
     }
 
-    internal static void RegisterCustomMappings(this ModelBuilder modelBuilder, IEnumerable<Type> typeToRegisters)
+    static class HotelManagementContextConfigurations
     {
-        var customModelBuilderTypes = typeToRegisters.Where(x => typeof(ICustomModelBuilder).IsAssignableFrom(x));
-        foreach (var builderType in customModelBuilderTypes)
+        internal static void RegisterEntities(this ModelBuilder modelBuilder, IEnumerable<Type> typeToRegisters)
         {
-            if (builderType != null && builderType != typeof(ICustomModelBuilder))
+            var entityTypes = typeToRegisters.Where(t => (t.GetTypeInfo().IsSubclassOf(typeof(Entity)) || t.GetTypeInfo().IsSubclassOf(typeof(Enumeration))) && !t.GetTypeInfo().IsAbstract);
+
+            foreach (var type in entityTypes)
             {
-                var builder = (ICustomModelBuilder)Activator.CreateInstance(builderType);
-                builder.Build(modelBuilder);
+                modelBuilder.Entity(type);
+            }
+        }
+
+        internal static void RegisterConvention(this ModelBuilder modelBuilder)
+        {
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                if (entity.ClrType.Namespace != null)
+                {
+                    var tableName = entity.ClrType.Name;
+                    var typeBuilder = modelBuilder.Entity(entity.Name);
+                    typeBuilder.ToTable(tableName);
+
+                    if (entity.ClrType.IsSubclassOf(typeof(Entity)))
+                    {
+                    }
+                    else if (entity.ClrType.IsSubclassOf(typeof(Enumeration)))
+                    {
+                        typeBuilder.Property("Id").ValueGeneratedNever();
+                    }
+                }
+            }
+
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+        }
+
+        internal static void RegisterCustomMappings(this ModelBuilder modelBuilder, IEnumerable<Type> typeToRegisters)
+        {
+            var customModelBuilderTypes = typeToRegisters.Where(x => typeof(ICustomModelBuilder).IsAssignableFrom(x));
+            foreach (var builderType in customModelBuilderTypes)
+            {
+                if (builderType != null && builderType != typeof(ICustomModelBuilder))
+                {
+                    var builder = (ICustomModelBuilder)Activator.CreateInstance(builderType);
+                    builder.Build(modelBuilder);
+                }
             }
         }
     }
