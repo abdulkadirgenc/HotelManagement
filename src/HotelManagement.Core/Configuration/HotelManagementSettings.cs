@@ -1,6 +1,6 @@
 ﻿namespace HotelManagement.Core.Configuration
 {
-    public class HotelSettings
+    public class HotelManagementSettings
     {
         public string ConnectionString { get; set; }
 

@@ -78,7 +78,13 @@ namespace HotelManagement.Infrastructure.Data
     {
         internal static void RegisterEntities(this ModelBuilder modelBuilder, IEnumerable<Type> typeToRegisters)
         {
-            var entityTypes = typeToRegisters.Where(t => (t.GetTypeInfo().IsSubclassOf(typeof(Entity)) || t.GetTypeInfo().IsSubclassOf(typeof(Enumeration))) && !t.GetTypeInfo().IsAbstract);
+            var entityTypes = typeToRegisters.Where(t =>
+                (
+                    t.GetTypeInfo().IsSubclassOf(typeof(Entity)) ||
+                    t.GetTypeInfo().IsSubclassOf(typeof(Enumeration))
+                ) &&
+                !t.GetTypeInfo().IsAbstract
+            );
 
             foreach (var type in entityTypes)
             {

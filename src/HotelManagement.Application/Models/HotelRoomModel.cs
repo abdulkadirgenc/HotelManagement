@@ -1,6 +1,6 @@
 ﻿namespace HotelManagement.Application.Models
 {
-    internal class HotelRoomModel
+    public class HotelRoomModel
     {
     }
 }

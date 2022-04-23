@@ -12,6 +12,7 @@ namespace HotelManagement.Application.IoC
         {
             // services
             builder.RegisterType<HotelService>().As<IHotelService>().InstancePerLifetimeScope();
+            builder.RegisterType<HotelRoomService>().As<IHotelRoomService>().InstancePerLifetimeScope();
         }
 
         public int Order => 2;

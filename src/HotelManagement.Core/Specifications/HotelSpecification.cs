@@ -6,12 +6,12 @@ namespace HotelManagement.Core.Specifications
     public class HotelSpecification : BaseSpecification<Hotel>
     {
         public HotelSpecification(string hotelName)
-            : base(p => p.Name.Contains(hotelName))
+            : base(h => h.Name.Contains(hotelName))
         {
         }
 
         public HotelSpecification(int hotelId)
-            : base(p => p.Id == hotelId)
+            : base(h => h.Id == hotelId)
         {
         }
 

@@ -53,10 +53,10 @@ namespace HotelManagement.Infrastructure.Repository
                     switch (sortingOption.Field)
                     {
                         case "id":
-                            orderByList.Add(new Tuple<SortingOption, Expression<Func<Hotel, object>>>(sortingOption, p => p.Id));
+                            orderByList.Add(new Tuple<SortingOption, Expression<Func<Hotel, object>>>(sortingOption, h => h.Id));
                             break;
                         case "name":
-                            orderByList.Add(new Tuple<SortingOption, Expression<Func<Hotel, object>>>(sortingOption, p => p.Name));
+                            orderByList.Add(new Tuple<SortingOption, Expression<Func<Hotel, object>>>(sortingOption, h => h.Name));
                             break;
                     }
                 }
@@ -64,7 +64,7 @@ namespace HotelManagement.Infrastructure.Repository
 
             if (orderByList.Count == 0)
             {
-                orderByList.Add(new Tuple<SortingOption, Expression<Func<Hotel, object>>>(new SortingOption { Direction = SortingOption.SortingDirection.ASC }, p => p.Id));
+                orderByList.Add(new Tuple<SortingOption, Expression<Func<Hotel, object>>>(new SortingOption { Direction = SortingOption.SortingDirection.ASC }, h => h.Id));
             }
 
             //TODO: FilteringOption.Operator will be handled
@@ -77,10 +77,10 @@ namespace HotelManagement.Infrastructure.Repository
                     switch (filteringOption.Field)
                     {
                         case "id":
-                            filterList.Add(new Tuple<FilteringOption, Expression<Func<Hotel, bool>>>(filteringOption, p => p.Id == (int)filteringOption.Value));
+                            filterList.Add(new Tuple<FilteringOption, Expression<Func<Hotel, bool>>>(filteringOption, h => h.Id == (int)filteringOption.Value));
                             break;
                         case "name":
-                            filterList.Add(new Tuple<FilteringOption, Expression<Func<Hotel, bool>>>(filteringOption, p => p.Name.Contains((string)filteringOption.Value)));
+                            filterList.Add(new Tuple<FilteringOption, Expression<Func<Hotel, bool>>>(filteringOption, h => h.Name.Contains((string)filteringOption.Value)));
                             break;
                     }
                 }
