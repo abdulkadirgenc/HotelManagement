@@ -29,7 +29,7 @@ namespace HotelManagement.Infrastructure.Extensions
             var hotelManagementSettings = configuration.Get<HotelManagementSettings>();
 
             services
-                .AddCustomMvc()
+                .AddCustomController()
                 .AddCustomDbContext(hotelManagementSettings)
                 .AddCustomIdentity()
                 .AddCustomSwagger()
@@ -38,11 +38,11 @@ namespace HotelManagement.Infrastructure.Extensions
                 .AddCustomIntegrations(hostEnvironment);
         }
 
-        public static IServiceCollection AddCustomMvc(this IServiceCollection services)
+        public static IServiceCollection AddCustomController(this IServiceCollection services)
         {
             // Add framework services.
             services
-                .AddMvc()
+                .AddControllers()
                 .AddFluentValidation(fv =>
                 {
                     fv.DisableDataAnnotationsValidation = true;
@@ -51,8 +51,7 @@ namespace HotelManagement.Infrastructure.Extensions
                 {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                })
-                .AddControllersAsServices();
+                });
 
             services.AddCors(options =>
             {
@@ -124,7 +123,7 @@ namespace HotelManagement.Infrastructure.Extensions
                     {
                         Name = "HotelManagement",
                         Email = string.Empty,
-                        Url = new Uri(string.Empty)
+                        Url = new Uri("https://example.com/contact")
                     },
                     License = new OpenApiLicense
                     {
@@ -141,24 +140,6 @@ namespace HotelManagement.Infrastructure.Extensions
         {
             services.AddOptions();
             services.Configure<HotelManagementSettings>(configuration);
-
-            services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.InvalidModelStateResponseFactory = context =>
-                {
-                    var problemDetails = new ValidationProblemDetails(context.ModelState)
-                    {
-                        Instance = context.HttpContext.Request.Path,
-                        Status = StatusCodes.Status400BadRequest,
-                        Detail = "Please refer to the errors property for additional details."
-                    };
-
-                    return new BadRequestObjectResult(problemDetails)
-                    {
-                        ContentTypes = { "application/problem+json", "application/problem+xml" }
-                    };
-                };
-            });
 
             return services;
         }
