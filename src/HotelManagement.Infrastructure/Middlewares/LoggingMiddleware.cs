@@ -1,4 +1,7 @@
-﻿namespace HotelManagement.Api.Application.Middlewares
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
+namespace HotelManagement.Infrastructure.Middlewares
 {
     public class LoggingMiddleware
     {

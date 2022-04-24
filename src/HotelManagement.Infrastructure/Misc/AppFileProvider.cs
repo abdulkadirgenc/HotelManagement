@@ -1,6 +1,7 @@
-﻿using System.Security.AccessControl;
+﻿using System.Runtime.Versioning;
+using System.Security.AccessControl;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.FileProviders;
 
 namespace HotelManagement.Infrastructure.Misc
@@ -14,14 +15,12 @@ namespace HotelManagement.Infrastructure.Misc
         /// Initializes a new instance of a AppFileProvider
         /// </summary>
         /// <param name="hostingEnvironment">Hosting environment</param>
-        public AppFileProvider(IHostingEnvironment hostingEnvironment)
-            : base(File.Exists(hostingEnvironment.ContentRootPath) ? Path.GetDirectoryName(hostingEnvironment.ContentRootPath) : hostingEnvironment.ContentRootPath)
+        public AppFileProvider(IHostEnvironment hostEnvironment)
+            : base(File.Exists(hostEnvironment.ContentRootPath) ? Path.GetDirectoryName(hostEnvironment.ContentRootPath) : hostEnvironment.ContentRootPath)
         {
-            var path = hostingEnvironment.ContentRootPath ?? string.Empty;
-            if (File.Exists(path))
-                path = Path.GetDirectoryName(path);
-
-            BaseDirectory = path;
+            WebRootPath = File.Exists(hostEnvironment.ContentRootPath)
+                ? Path.GetDirectoryName(hostEnvironment.ContentRootPath)
+                : hostEnvironment.ContentRootPath;
         }
 
         #region Utilities
@@ -45,6 +44,18 @@ namespace HotelManagement.Infrastructure.Misc
             }
         }
 
+        /// <summary>
+        /// Determines if the string is a valid Universal Naming Convention (UNC)
+        /// for a server and share path.
+        /// </summary>
+        /// <param name="path">The path to be tested.</param>
+        /// <returns><see langword="true"/> if the path is a valid UNC path; 
+        /// otherwise, <see langword="false"/>.</returns>
+        protected static bool IsUncPath(string path)
+        {
+            return Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.IsUnc;
+        }
+
         #endregion
 
         #region Methods
@@ -56,9 +67,10 @@ namespace HotelManagement.Infrastructure.Misc
         /// <returns>The combined paths</returns>
         public virtual string Combine(params string[] paths)
         {
-            var path = Path.Combine(paths.SelectMany(p => p.Split('\\', '/')).ToArray());
+            var path = Path.Combine(paths.SelectMany(p => IsUncPath(p) ? new[] { p } : p.Split('\\', '/')).ToArray());
 
-            if (path.Contains('/'))
+            if (Environment.OSVersion.Platform == PlatformID.Unix && !IsUncPath(path))
+                //add leading slash to correctly form path in the UNIX system
                 path = "/" + path;
 
             return path;
@@ -240,7 +252,11 @@ namespace HotelManagement.Infrastructure.Misc
         /// <returns>The absolute path to the directory</returns>
         public virtual string GetAbsolutePath(params string[] paths)
         {
-            var allPaths = new List<string> { Root };
+            var allPaths = new List<string>();
+
+            if (paths.Any() && !paths[0].Contains(WebRootPath, StringComparison.InvariantCulture))
+                allPaths.Add(WebRootPath);
+
             allPaths.AddRange(paths);
 
             return Combine(allPaths.ToArray());
@@ -251,6 +267,7 @@ namespace HotelManagement.Infrastructure.Misc
         /// </summary>
         /// <param name="path">The path to a directory containing a System.Security.AccessControl.DirectorySecurity object that describes the file's access control list (ACL) information</param>
         /// <returns>An object that encapsulates the access control rules for the file described by the path parameter</returns>
+        [SupportedOSPlatform("windows")]
         public virtual DirectorySecurity GetAccessControl(string path)
         {
             return new DirectoryInfo(path).GetAccessControl();
@@ -372,8 +389,14 @@ namespace HotelManagement.Infrastructure.Misc
             if (string.IsNullOrEmpty(searchPattern))
                 searchPattern = "*.*";
 
-            return Directory.GetFiles(directoryPath, searchPattern,
-                topDirectoryOnly ? SearchOption.TopDirectoryOnly : SearchOption.AllDirectories);
+            return Directory.GetFileSystemEntries(directoryPath, searchPattern,
+                new EnumerationOptions
+                {
+                    IgnoreInaccessible = true,
+                    MatchCasing = MatchCasing.CaseInsensitive,
+                    RecurseSubdirectories = !topDirectoryOnly,
+
+                });
         }
 
         /// <summary>
@@ -424,6 +447,24 @@ namespace HotelManagement.Infrastructure.Misc
         }
 
         /// <summary>
+        /// Gets a virtual path from a physical disk path.
+        /// </summary>
+        /// <param name="path">The physical disk path</param>
+        /// <returns>The virtual path. E.g. "~/bin"</returns>
+        public virtual string GetVirtualPath(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return path;
+
+            if (!IsDirectory(path) && FileExists(path))
+                path = new FileInfo(path).DirectoryName;
+
+            path = path?.Replace(WebRootPath, string.Empty).Replace('\\', '/').Trim('/').TrimStart('~', '/');
+
+            return $"~/{path ?? string.Empty}";
+        }
+
+        /// <summary>
         /// Checks if the path is directory
         /// </summary>
         /// <param name="path">Path for check</param>
@@ -441,17 +482,41 @@ namespace HotelManagement.Infrastructure.Misc
         public virtual string MapPath(string path)
         {
             path = path.Replace("~/", string.Empty).TrimStart('/');
-            return Combine(BaseDirectory ?? string.Empty, path);
+
+            //if virtual path has slash on the end, it should be after transform the virtual path to physical path too
+            var pathEnd = path.EndsWith('/') ? Path.DirectorySeparatorChar.ToString() : string.Empty;
+
+            return Combine(Root ?? string.Empty, path) + pathEnd;
         }
 
         /// <summary>
         /// Reads the contents of the file into a byte array
         /// </summary>
         /// <param name="filePath">The file for reading</param>
-        /// <returns>A byte array containing the contents of the file</returns>
-        public virtual byte[] ReadAllBytes(string filePath)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains a byte array containing the contents of the file
+        /// </returns>
+        public virtual async Task<byte[]> ReadAllBytesAsync(string filePath)
         {
-            return File.Exists(filePath) ? File.ReadAllBytes(filePath) : new byte[0];
+            return File.Exists(filePath) ? await File.ReadAllBytesAsync(filePath) : Array.Empty<byte>();
+        }
+
+        /// <summary>
+        /// Opens a file, reads all lines of the file with the specified encoding, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to open for reading</param>
+        /// <param name="encoding">The encoding applied to the contents of the file</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains a string containing all lines of the file
+        /// </returns>
+        public virtual async Task<string> ReadAllTextAsync(string path, Encoding encoding)
+        {
+            await using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var streamReader = new StreamReader(fileStream, encoding);
+
+            return await streamReader.ReadToEndAsync();
         }
 
         /// <summary>
@@ -462,26 +527,10 @@ namespace HotelManagement.Infrastructure.Misc
         /// <returns>A string containing all lines of the file</returns>
         public virtual string ReadAllText(string path, Encoding encoding)
         {
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                using (var streamReader = new StreamReader(fileStream, encoding))
-                {
-                    return streamReader.ReadToEnd();
-                }
-            }
-        }
+            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var streamReader = new StreamReader(fileStream, encoding);
 
-        /// <summary>
-        /// Sets the date and time, in coordinated universal time (UTC), that the specified file was last written to
-        /// </summary>
-        /// <param name="path">The file for which to set the date and time information</param>
-        /// <param name="lastWriteTimeUtc">
-        /// A System.DateTime containing the value to set for the last write date and time of path.
-        /// This value is expressed in UTC time
-        /// </param>
-        public virtual void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
-        {
-            File.SetLastWriteTimeUtc(path, lastWriteTimeUtc);
+            return streamReader.ReadToEnd();
         }
 
         /// <summary>
@@ -489,9 +538,23 @@ namespace HotelManagement.Infrastructure.Misc
         /// </summary>
         /// <param name="filePath">The file to write to</param>
         /// <param name="bytes">The bytes to write to the file</param>
-        public virtual void WriteAllBytes(string filePath, byte[] bytes)
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task WriteAllBytesAsync(string filePath, byte[] bytes)
         {
-            File.WriteAllBytes(filePath, bytes);
+            await File.WriteAllBytesAsync(filePath, bytes);
+        }
+
+        /// <summary>
+        /// Creates a new file, writes the specified string to the file using the specified encoding,
+        /// and then closes the file. If the target file already exists, it is overwritten.
+        /// </summary>
+        /// <param name="path">The file to write to</param>
+        /// <param name="contents">The string to write to the file</param>
+        /// <param name="encoding">The encoding to apply to the string</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public virtual async Task WriteAllTextAsync(string path, string contents, Encoding encoding)
+        {
+            await File.WriteAllTextAsync(path, contents, encoding);
         }
 
         /// <summary>
@@ -506,8 +569,18 @@ namespace HotelManagement.Infrastructure.Misc
             File.WriteAllText(path, contents, encoding);
         }
 
+        /// <summary>Locate a file at the given path.</summary>
+        /// <param name="subpath">Relative path that identifies the file.</param>
+        /// <returns>The file information. Caller must check Exists property.</returns>
+        public new IFileInfo GetFileInfo(string subpath)
+        {
+            subpath = subpath.Replace(Root, string.Empty);
+
+            return base.GetFileInfo(subpath);
+        }
+
         #endregion
 
-        protected string BaseDirectory { get; }
+        protected string WebRootPath { get; }
     }
 }
