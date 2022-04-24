@@ -7,6 +7,6 @@ namespace HotelManagement.Core.Repositories
     public interface IHotelRoomRepository : IRepository<HotelRoom>
     {
         Task<IEnumerable<HotelRoom>> GetCheapestRooms();
-        Task<IPagedList<HotelRoom>> AdvancedRoomSearch(PageSearchArgs args);
+        Task<IPagedList<HotelRoom>> SearchHotelRooms(PageSearchArgs args);
     }
 }

@@ -39,15 +39,6 @@ namespace HotelManagement.Api.Controllers
         [ProducesResponseType(typeof(IEnumerable<HotelModel>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<HotelRoomModel>>> AdvancedRoomSearch(AdvancedRoomSearchRequest request)
         {
-            var filteringOptions = new List<FilteringOption>
-            {
-                new FilteringOption
-                {
-                    Field = "RoomTypeId",
-                    Operator = FilteringOption.FilteringOperator.IN,
-                    Value = request.RoomTypeIds
-                }
-            };
             var sortingOptions = new List<SortingOption>
             {
                 new SortingOption
@@ -55,6 +46,21 @@ namespace HotelManagement.Api.Controllers
                     Field = "Price",
                     Direction = SortingOption.SortingDirection.ASC,
                     Priority = 0
+                },
+                new SortingOption
+                {
+                    Field = "HotelName",
+                    Direction = SortingOption.SortingDirection.ASC,
+                    Priority = 0
+                }
+            };
+            var filteringOptions = new List<FilteringOption>
+            {
+                new FilteringOption
+                {
+                    Field = "RoomTypeIds",
+                    Operator = FilteringOption.FilteringOperator.IN,
+                    Value = request.RoomTypeIds
                 }
             };
 
@@ -63,7 +69,7 @@ namespace HotelManagement.Api.Controllers
                 filteringOptions.Add(
                     new FilteringOption
                     {
-                        Field = "HotelId",
+                        Field = "HotelIds",
                         Operator = FilteringOption.FilteringOperator.IN,
                         Value = request.SelectedHotelIds
                     }
@@ -79,7 +85,7 @@ namespace HotelManagement.Api.Controllers
                 SortingOptions = sortingOptions
             };
 
-            var hotelRoomPagedList = await _hotelRoomService.AdvancedRoomSearch(pageSearchArg);
+            var hotelRoomPagedList = await _hotelRoomService.SearchHotelRooms(pageSearchArg);
 
             return Ok(hotelRoomPagedList.Items);
         }

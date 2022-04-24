@@ -31,7 +31,7 @@ namespace HotelManagement.Infrastructure.Repository
         }
 
 
-        public Task<IPagedList<HotelRoom>> AdvancedRoomSearch(PageSearchArgs args)
+        public Task<IPagedList<HotelRoom>> SearchHotelRooms(PageSearchArgs args)
     {
             var query = Table.Include(hr => hr.Hotel).Include(hr => hr.RoomType);
 
@@ -45,6 +45,9 @@ namespace HotelManagement.Infrastructure.Repository
                     {
                         case "Price":
                             orderByList.Add(new Tuple<SortingOption, Expression<Func<HotelRoom, object>>>(sortingOption, hr => hr.Price));
+                            break;
+                        case "HotelName":
+                            orderByList.Add(new Tuple<SortingOption, Expression<Func<HotelRoom, object>>>(sortingOption, hr => hr.Hotel.Name));
                             break;
                     }
                 }
@@ -64,10 +67,10 @@ namespace HotelManagement.Infrastructure.Repository
                 {
                     switch (filteringOption.Field)
                     {
-                        case "RoomTypeId":
+                        case "RoomTypeIds":
                             filterList.Add(new Tuple<FilteringOption, Expression<Func<HotelRoom, bool>>>(filteringOption, hr => ((List<int>)filteringOption.Value).Contains(hr.RoomTypeId)));
                             break;
-                        case "HotelId":
+                        case "HotelIds":
                             filterList.Add(new Tuple<FilteringOption, Expression<Func<HotelRoom, bool>>>(filteringOption, hr => ((List<int>)filteringOption.Value).Contains(hr.HotelId)));
                             break;
                     }

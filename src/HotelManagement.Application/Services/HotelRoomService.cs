@@ -28,9 +28,9 @@ namespace HotelManagement.Application.Services
             return hotelRoomModels;
         }
 
-        public async Task<IPagedList<HotelRoomModel>> AdvancedRoomSearch(PageSearchArgs args)
+        public async Task<IPagedList<HotelRoomModel>> SearchHotelRooms(PageSearchArgs args)
         {
-            var hotelRoomPagedList = await _hotelRoomRepository.AdvancedRoomSearch(args);
+            var hotelRoomPagedList = await _hotelRoomRepository.SearchHotelRooms(args);
 
             //TODO: PagedList<TSource> will be mapped to PagedList<TDestination>;
             var hotelRoomModels = ObjectMapper.Mapper.Map<List<HotelRoomModel>>(hotelRoomPagedList.Items);
