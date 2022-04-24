@@ -2,7 +2,8 @@
 
 namespace HotelManagement.Application.Models
 {
-    public class ReservationModel : BaseModel
+    public class RoomTypeModel : BaseModel
     {
+        public string Name { get; set; }
     }
 }

@@ -12,6 +12,7 @@ namespace HotelManagement.Infrastructure.Data
         private readonly UserManager<HotelManagementUser> _userManager;
         private readonly IHotelRepository _hotelRepository;
         private readonly IRepository<HotelRoom> _hotelRoomRepository;
+        private readonly IRepository<RoomType> _roomTypeRepository;
         private readonly IRepository<Reservation> _reservationRepository;
 
         public HotelManagementContextSeed(
@@ -19,23 +20,91 @@ namespace HotelManagement.Infrastructure.Data
             UserManager<HotelManagementUser> userManager,
             IHotelRepository hotelRepository,
             IRepository<HotelRoom> hotelRoomRepository,
+            IRepository<RoomType> roomTypeRepository,
             IRepository<Reservation> reservationRepository)
         {
             _hotelManagementContext = hotelManagementContext;
             _userManager = userManager;
             _hotelRepository = hotelRepository;
             _hotelRoomRepository = hotelRoomRepository;
+            _roomTypeRepository = roomTypeRepository;
             _reservationRepository = reservationRepository;
         }
 
         public async Task SeedAsync()
         {
-            // TODO: Only run this if using a real database
-            // _hotelManagementContext.Database.Migrate();
-            // _hotelManagementContext.Database.EnsureCreated();
+            //TODO: Only run this if using a real database
+            //_hotelManagementContext.Database.Migrate();
+            _hotelManagementContext.Database.EnsureCreated();
+
+            // room types
+            await SeedRoomTypesAsync();
+
+            // hotels
+            await SeedHotelsAsync();
+
+            // hotel rooms
+            await SeedHotelRoomsAsync();
 
             // users
             await SeedUsersAsync();
+        }
+
+        private async Task SeedRoomTypesAsync()
+        {
+            if (!_roomTypeRepository.Table.Any())
+            {
+                var roomTypes = new List<RoomType>
+                {
+                    new RoomType() { Name = "Single Room"}, // 1
+                    new RoomType() { Name = "Twin Room"}, // 2
+                    new RoomType() { Name = "Double Room"}, // 3
+                    new RoomType() { Name = "King Room"}, // 4
+                    new RoomType() { Name = "Queen Room"}, // 5
+                };
+
+                await _roomTypeRepository.AddRangeAsync(roomTypes);
+            }
+        }
+
+        private async Task SeedHotelsAsync()
+        {
+            if (!_hotelRepository.Table.Any())
+            {
+                var hotels = new List<Hotel>
+                {
+                    new Hotel() { Name = "Titanic Mardan Palaca" },
+                    new Hotel() { Name = "Akra Hotel" },
+                    new Hotel() { Name = "Hotel SU & Aqualand" },
+                    new Hotel() { Name = "Rixos Downtown Antalya" },
+                    new Hotel() { Name = "The Marmara Antalya" },
+                    new Hotel() { Name = "Concorde De Luxe Resort" },
+                    new Hotel() { Name = "Crowne Plaza Antalya" },
+                    new Hotel() { Name = "Terrace Beach Resort" },
+                };
+
+                await _hotelRepository.AddRangeAsync(hotels);
+            }
+        }
+
+        private async Task SeedHotelRoomsAsync()
+        {
+            if (!_hotelRoomRepository.Table.Any())
+            {
+                var hotelRooms = from hotel in _hotelRepository.Table
+                            from roomType in _roomTypeRepository.Table
+                            from multiply in _roomTypeRepository.Table
+                            select new HotelRoom
+                            {
+                                Hotel = hotel,
+                                RoomType = roomType,
+                                Price = 300 + (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode() * multiply.Name.GetHashCode())) % 500,
+                                MaxAllotment = 50 + (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode() * multiply.Name.GetHashCode())) % 60,
+                                SoldAllotment = (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode() * multiply.Name.GetHashCode())) % 8,
+                            };
+
+                await _hotelRoomRepository.AddRangeAsync(hotelRooms);
+            }
         }
 
         private async Task SeedUsersAsync()

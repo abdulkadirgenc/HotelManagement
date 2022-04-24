@@ -24,7 +24,7 @@ namespace HotelManagement.Infrastructure.Repository
             var hotelRooms = from hr in Table.Include(hr => hr.Hotel).Include(hr => hr.RoomType)
                              from mp in minPriceByHotelId
                              where hr.HotelId == mp.HotelId && hr.Price == mp.Price
-                             orderby mp.Price descending, hr.Hotel.Name
+                             orderby mp.Price, hr.Hotel.Name
                              select hr;
 
             return await hotelRooms.ToListAsync();
@@ -33,7 +33,7 @@ namespace HotelManagement.Infrastructure.Repository
 
         public Task<IPagedList<HotelRoom>> AdvancedRoomSearch(PageSearchArgs args)
     {
-            var query = Table;
+            var query = Table.Include(hr => hr.Hotel).Include(hr => hr.RoomType);
 
             var orderByList = new List<Tuple<SortingOption, Expression<Func<HotelRoom, object>>>>();
 

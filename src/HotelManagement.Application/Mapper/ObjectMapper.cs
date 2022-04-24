@@ -10,6 +10,7 @@ namespace HotelManagement.Application.Mapper
             {
                 cfg.CreateMap<Hotel, HotelModel>().ReverseMap();
                 cfg.CreateMap<HotelRoom, HotelRoomModel>().ReverseMap();
+                cfg.CreateMap<RoomType, RoomTypeModel>().ReverseMap();
                 cfg.CreateMap<Reservation, ReservationModel>().ReverseMap();
             }).CreateMapper();
     }
