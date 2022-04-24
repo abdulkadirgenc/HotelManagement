@@ -11,8 +11,14 @@ namespace HotelManagement.Infrastructure.Repository
 {
     public class HotelRoomRepository : Repository<HotelRoom>, IHotelRoomRepository
     {
-        public HotelRoomRepository(HotelManagementContext context) : base(context)
+        private IHotelRepository _hotelRepository;
+
+        public HotelRoomRepository(
+            HotelManagementContext context,
+            IHotelRepository hotelRepository
+            ) : base(context)
         {
+            _hotelRepository = hotelRepository;
         }
 
         public async Task<IEnumerable<HotelRoom>> GetCheapestRooms()
@@ -30,9 +36,8 @@ namespace HotelManagement.Infrastructure.Repository
             return await hotelRooms.ToListAsync();
         }
 
-
         public Task<IPagedList<HotelRoom>> SearchHotelRooms(PageSearchArgs args)
-    {
+        {
             var query = Table.Include(hr => hr.Hotel).Include(hr => hr.RoomType);
 
             var orderByList = new List<Tuple<SortingOption, Expression<Func<HotelRoom, object>>>>();
@@ -80,6 +85,29 @@ namespace HotelManagement.Infrastructure.Repository
             var hotelPagedList = new PagedList<HotelRoom>(query, new PagingArgs { PageIndex = args.PageIndex, PageSize = args.PageSize, PagingStrategy = args.PagingStrategy }, orderByList, filterList);
 
             return Task.FromResult<IPagedList<HotelRoom>>(hotelPagedList);
+        }
+
+        public async Task<IEnumerable<Tuple<Hotel, bool>>> RoomAvailabilityCheck(List<int> hotelIds, List<int> roomTypeIds, int requestedRoomCount)
+        {
+            var hotelRoomQuery = from hr in Table
+                                 where roomTypeIds.Contains(hr.RoomTypeId)
+                                 select hr;
+
+            if (hotelIds != null && hotelIds.Count > 0)
+            {
+                hotelRoomQuery = hotelRoomQuery.Where(hr => hotelIds.Contains(hr.HotelId));
+            }
+
+            var availableRoomCountByHotelId = from hr in hotelRoomQuery
+                                              group hr by hr.HotelId into arc
+                                              select new { HotelId = arc.Key, AvailableRoomCount = arc.Sum(x => x.MaxAllotment - x.SoldAllotment) };
+
+            var hotelRooms = from hotel in _hotelRepository.Table
+                             from arc in availableRoomCountByHotelId
+                             where arc.HotelId == hotel.Id
+                             select new Tuple<Hotel, bool>(hotel, arc.AvailableRoomCount >= requestedRoomCount);
+
+            return await hotelRooms.ToListAsync();
         }
     }
 }

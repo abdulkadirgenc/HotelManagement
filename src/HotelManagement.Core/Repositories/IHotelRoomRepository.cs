@@ -8,5 +8,6 @@ namespace HotelManagement.Core.Repositories
     {
         Task<IEnumerable<HotelRoom>> GetCheapestRooms();
         Task<IPagedList<HotelRoom>> SearchHotelRooms(PageSearchArgs args);
+        Task<IEnumerable<Tuple<Hotel, bool>>> RoomAvailabilityCheck(List<int> hotelIds, List<int> roomTypeIds, int requestedRoomCount);
     }
 }

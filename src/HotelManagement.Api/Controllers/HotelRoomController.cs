@@ -89,5 +89,15 @@ namespace HotelManagement.Api.Controllers
 
             return Ok(hotelRoomPagedList.Items);
         }
+
+        [Route("[action]")]
+        [HttpPost]
+        [ProducesResponseType(typeof(IEnumerable<HotelModel>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<HotelRoomAvailabilityModel>>> RoomAvailabilityCheck(RoomAvailabilityCheckRequest request)
+        {
+            var hotelRoomAvailabilities = await _hotelRoomService.RoomAvailabilityCheck(request.HotelIds, request.RoomTypeIds, request.RequestedRoomCount);
+
+            return Ok(hotelRoomAvailabilities);
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace HotelManagement.Application.Interfaces
     {
         Task<IEnumerable<HotelRoomModel>> GetCheapestRoomPrices();
         Task<IPagedList<HotelRoomModel>> SearchHotelRooms(PageSearchArgs args);
+        Task<IEnumerable<HotelRoomAvailabilityModel>> RoomAvailabilityCheck(List<int> hotelIds, List<int> roomTypeIds, int requestedRoomCount);
     }
 }

@@ -44,5 +44,18 @@ namespace HotelManagement.Application.Services
 
             return hotelRoomModelPagedList;
         }
+
+        public async Task<IEnumerable<HotelRoomAvailabilityModel>> RoomAvailabilityCheck(List<int> hotelIds, List<int> roomTypeIds, int requestedRoomCount)
+        {
+            var hotelRoomAvailabilities = await _hotelRoomRepository.RoomAvailabilityCheck(hotelIds, roomTypeIds, requestedRoomCount);
+
+            var hotelRoomAvailabilityModels = hotelRoomAvailabilities.ToList().Select(availability => new HotelRoomAvailabilityModel
+            {
+                Hotel = ObjectMapper.Mapper.Map<HotelModel>(availability.Item1),
+                Available = availability.Item2
+            });
+
+            return hotelRoomAvailabilityModels;
+        }
     }
 }
