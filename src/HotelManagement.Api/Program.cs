@@ -1,9 +1,13 @@
+using Autofac.Extensions.DependencyInjection;
 using HotelManagement.Infrastructure.Data;
 using HotelManagement.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.ConfigureApplicationServices(builder.Configuration, builder.Environment);
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+builder.Configuration.AddEnvironmentVariables();
+
+builder.ConfigureApplicationServices();
 
 var app = builder.Build();
 

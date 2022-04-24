@@ -9,8 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -19,23 +17,24 @@ using HotelManagement.Infrastructure.Misc;
 using HotelManagement.Infrastructure.IoC;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
+using Microsoft.AspNetCore.Builder;
 
 namespace HotelManagement.Infrastructure.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void ConfigureApplicationServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
+        public static void ConfigureApplicationServices(this WebApplicationBuilder builder)
         {
-            var hotelManagementSettings = configuration.Get<HotelManagementSettings>();
+            var hotelManagementSettings = builder.Configuration.Get<HotelManagementSettings>();
 
-            services
+            builder.Services
                 .AddCustomController()
                 .AddCustomDbContext(hotelManagementSettings)
                 .AddCustomIdentity()
                 .AddCustomSwagger()
-                .AddCustomConfiguration(configuration)
+                .AddCustomConfiguration(builder.Configuration)
                 .AddCustomAuthentication(hotelManagementSettings)
-                .AddCustomIntegrations(hostEnvironment);
+                .AddCustomIntegrations(builder.Environment, builder.Host);
         }
 
         public static IServiceCollection AddCustomController(this IServiceCollection services)
@@ -165,36 +164,34 @@ namespace HotelManagement.Infrastructure.Extensions
             return services;
         }
 
-        public static IServiceProvider AddCustomIntegrations(this IServiceCollection services, IHostEnvironment hostEnvironment)
+        public static IServiceCollection AddCustomIntegrations(this IServiceCollection services, IHostEnvironment hostEnvironment, ConfigureHostBuilder host)
         {
             services.AddHttpContextAccessor();
 
-            var fileProvider = new AppFileProvider(hostEnvironment);
-            var typeFinder = new WebAppTypeFinder(fileProvider);
-
             //configure autofac
-            var containerBuilder = new ContainerBuilder();
+            host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+            {
+                var fileProvider = new AppFileProvider(hostEnvironment);
+                var typeFinder = new WebAppTypeFinder(fileProvider);
 
-            //register type finder
-            containerBuilder.RegisterInstance(fileProvider).As<IAppFileProvider>().SingleInstance();
-            containerBuilder.RegisterInstance(typeFinder).As<ITypeFinder>().SingleInstance();
+                //register type finder
+                containerBuilder.RegisterInstance(fileProvider).As<IAppFileProvider>().SingleInstance();
+                containerBuilder.RegisterInstance(typeFinder).As<ITypeFinder>().SingleInstance();
 
-            //populate Autofac container builder with the set of registered service descriptors
-            containerBuilder.Populate(services);
+                //find dependency registrars provided by other assemblies
+                var dependencyRegistrars = typeFinder.FindClassesOfType<IDependencyRegistrar>();
 
-            //find dependency registrars provided by other assemblies
-            var dependencyRegistrars = typeFinder.FindClassesOfType<IDependencyRegistrar>();
+                //create and sort instances of dependency registrars
+                var instances = dependencyRegistrars
+                    .Select(dependencyRegistrar => (IDependencyRegistrar)Activator.CreateInstance(dependencyRegistrar))
+                    .OrderBy(dependencyRegistrar => dependencyRegistrar.Order);
 
-            //create and sort instances of dependency registrars
-            var instances = dependencyRegistrars
-                .Select(dependencyRegistrar => (IDependencyRegistrar)Activator.CreateInstance(dependencyRegistrar))
-                .OrderBy(dependencyRegistrar => dependencyRegistrar.Order);
+                //register all provided dependencies
+                foreach (var dependencyRegistrar in instances)
+                    dependencyRegistrar.Register(containerBuilder, typeFinder);
+            });
 
-            //register all provided dependencies
-            foreach (var dependencyRegistrar in instances)
-                dependencyRegistrar.Register(containerBuilder, typeFinder);
-
-            return new AutofacServiceProvider(containerBuilder.Build());
+            return services;
         }
     }
 }
