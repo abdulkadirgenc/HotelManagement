@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace HotelManagement.Api.Application.Validations
 {
-    public class AdvancedRoomSearchRequestValidator : AbstractValidator<AdvancedRoomSearchRequest>
+    public class AdvancedRoomSearchRequestDtoValidator : AbstractValidator<AdvancedRoomSearchRequestDto>
     {
-        public AdvancedRoomSearchRequestValidator()
+        public AdvancedRoomSearchRequestDtoValidator()
         {
             RuleFor(request => request.RoomTypeIds).NotNull().NotEmpty();
         }

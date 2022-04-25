@@ -1,6 +1,6 @@
 ﻿using HotelManagement.Api.Requests;
 using HotelManagement.Application.Interfaces;
-using HotelManagement.Application.Models;
+using HotelManagement.Application.Models.Entity;
 using HotelManagement.Core.Paging;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,7 +37,7 @@ namespace HotelManagement.Api.Controllers
         [Route("[action]")]
         [HttpPost]
         [ProducesResponseType(typeof(IPagedList<HotelModel>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IPagedList<HotelModel>>> SearchHotels(SearchPageRequest request)
+        public async Task<ActionResult<IPagedList<HotelModel>>> SearchHotels(SearchPageRequestDto request)
         {
             var hotelPagedList = await _hotelService.SearchHotels(request.Args);
 
@@ -47,7 +47,7 @@ namespace HotelManagement.Api.Controllers
         [Route("[action]")]
         [HttpPost]
         [ProducesResponseType(typeof(HotelModel), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<HotelModel>> GetHotelById(GetHotelByIdRequest request)
+        public async Task<ActionResult<HotelModel>> GetHotelById(GetHotelByIdRequestDto request)
         {
             var hotel = await _hotelService.GetHotelById(request.Id);
 
@@ -57,7 +57,7 @@ namespace HotelManagement.Api.Controllers
         [Route("[action]")]
         [HttpPost]
         [ProducesResponseType(typeof(IEnumerable<HotelModel>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<HotelModel>>> GetHotelsByName(GetHotelsByNameRequest request)
+        public async Task<ActionResult<IEnumerable<HotelModel>>> GetHotelsByName(GetHotelsByNameRequestDto request)
         {
             var hotels = await _hotelService.GetHotelsByName(request.Name);
 
@@ -68,7 +68,7 @@ namespace HotelManagement.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(HotelModel), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult<HotelModel>> CreateHotel(CreateHotelRequest request)
+        public async Task<ActionResult<HotelModel>> CreateHotel(CreateHotelRequestDto request)
         {
             var commandResult = await _mediator.Send(request);
 
@@ -79,7 +79,7 @@ namespace HotelManagement.Api.Controllers
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> UpdateHotel(UpdateHotelRequest request)
+        public async Task<ActionResult> UpdateHotel(UpdateHotelRequestDto request)
         {
             var commandResult = await _mediator.Send(request);
 
@@ -90,7 +90,7 @@ namespace HotelManagement.Api.Controllers
         [HttpPost]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<ActionResult> DeleteHotelById(DeleteHotelByIdRequest request)
+        public async Task<ActionResult> DeleteHotelById(DeleteHotelByIdRequestDto request)
         {
             var commandResult = await _mediator.Send(request);
 

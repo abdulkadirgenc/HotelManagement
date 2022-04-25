@@ -11,17 +11,17 @@ namespace HotelManagement.Infrastructure.Data
         private readonly HotelManagementContext _hotelManagementContext;
         private readonly UserManager<HotelManagementUser> _userManager;
         private readonly IHotelRepository _hotelRepository;
-        private readonly IRepository<HotelRoom> _hotelRoomRepository;
+        private readonly IHotelRoomRepository _hotelRoomRepository;
         private readonly IRepository<RoomType> _roomTypeRepository;
-        private readonly IRepository<Reservation> _reservationRepository;
+        private readonly IReservationRepository _reservationRepository;
 
         public HotelManagementContextSeed(
             HotelManagementContext hotelManagementContext,
             UserManager<HotelManagementUser> userManager,
             IHotelRepository hotelRepository,
-            IRepository<HotelRoom> hotelRoomRepository,
+            IHotelRoomRepository hotelRoomRepository,
             IRepository<RoomType> roomTypeRepository,
-            IRepository<Reservation> reservationRepository)
+            IReservationRepository reservationRepository)
         {
             _hotelManagementContext = hotelManagementContext;
             _userManager = userManager;
@@ -56,11 +56,11 @@ namespace HotelManagement.Infrastructure.Data
             {
                 var roomTypes = new List<RoomType>
                 {
-                    new RoomType() { Name = "Single Room"}, // 1
-                    new RoomType() { Name = "Twin Room"}, // 2
-                    new RoomType() { Name = "Double Room"}, // 3
-                    new RoomType() { Name = "King Room"}, // 4
-                    new RoomType() { Name = "Queen Room"}, // 5
+                    new RoomType() { Name = "Standart"}, // 1
+                    new RoomType() { Name = "Deluxe"}, // 2
+                    new RoomType() { Name = "Suite"}, // 3
+                    new RoomType() { Name = "Presidential"}, // 4
+                    new RoomType() { Name = "Villa"}, // 5
                 };
 
                 await _roomTypeRepository.AddRangeAsync(roomTypes);
@@ -92,16 +92,15 @@ namespace HotelManagement.Infrastructure.Data
             if (!_hotelRoomRepository.Table.Any())
             {
                 var hotelRooms = from hotel in _hotelRepository.Table
-                            from roomType in _roomTypeRepository.Table
-                            from multiply in _roomTypeRepository.Table
-                            select new HotelRoom
-                            {
-                                Hotel = hotel,
-                                RoomType = roomType,
-                                Price = 300 + (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode() * multiply.Name.GetHashCode())) % 500,
-                                MaxAllotment = 50 + (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode() * multiply.Name.GetHashCode())) % 60,
-                                SoldAllotment = (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode() * multiply.Name.GetHashCode())) % 8,
-                            };
+                                 from roomType in _roomTypeRepository.Table
+                                 select new HotelRoom
+                                 {
+                                     Hotel = hotel,
+                                     RoomType = roomType,
+                                     Price = 300 + (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode())) % 500,
+                                     MaxAllotment = 50 + (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode())) % 60,
+                                     SoldAllotment = (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode())) % 8,
+                                 };
 
                 await _hotelRoomRepository.AddRangeAsync(hotelRooms);
             }

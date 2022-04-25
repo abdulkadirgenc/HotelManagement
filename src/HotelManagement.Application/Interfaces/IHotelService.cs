@@ -1,4 +1,4 @@
-﻿using HotelManagement.Application.Models;
+﻿using HotelManagement.Application.Models.Entity;
 using HotelManagement.Core.Paging;
 
 namespace HotelManagement.Application.Interfaces

@@ -1,6 +1,6 @@
-﻿using HotelManagement.Application.Models.Base;
+﻿using HotelManagement.Application.Models.Entity.Base;
 
-namespace HotelManagement.Application.Models
+namespace HotelManagement.Application.Models.Entity
 {
     public class HotelRoomModel : BaseModel
     {

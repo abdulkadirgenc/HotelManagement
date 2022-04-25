@@ -2,7 +2,7 @@
 
 namespace HotelManagement.Api.Requests
 {
-    public class SearchPageRequest
+    public class SearchPageRequestDto
     {
         public PageSearchArgs Args { get; set; }
     }

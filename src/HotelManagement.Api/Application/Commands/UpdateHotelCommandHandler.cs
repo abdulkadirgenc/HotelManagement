@@ -4,7 +4,7 @@ using MediatR;
 
 namespace HotelManagement.Api.Application.Commands
 {
-    public class UpdateHotelCommandHandler : IRequestHandler<UpdateHotelRequest>
+    public class UpdateHotelCommandHandler : IRequestHandler<UpdateHotelRequestDto>
     {
         private readonly IHotelService _hotelService;
 
@@ -13,7 +13,7 @@ namespace HotelManagement.Api.Application.Commands
             _hotelService = hotelService;
         }
 
-        public async Task<Unit> Handle(UpdateHotelRequest request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateHotelRequestDto request, CancellationToken cancellationToken)
         {
             await _hotelService.UpdateHotel(request.Hotel);
 

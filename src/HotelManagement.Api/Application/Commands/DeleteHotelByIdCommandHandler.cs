@@ -4,7 +4,7 @@ using MediatR;
 
 namespace HotelManagement.Api.Application.Commands
 {
-    public class DeleteHotelByIdCommandHandler : IRequestHandler<DeleteHotelByIdRequest>
+    public class DeleteHotelByIdCommandHandler : IRequestHandler<DeleteHotelByIdRequestDto>
     {
         private readonly IHotelService _hotelService;
 
@@ -13,7 +13,7 @@ namespace HotelManagement.Api.Application.Commands
             _hotelService = hotelService;
         }
 
-        public async Task<Unit> Handle(DeleteHotelByIdRequest request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DeleteHotelByIdRequestDto request, CancellationToken cancellationToken)
         {
             await _hotelService.DeleteHotelById(request.Id);
 

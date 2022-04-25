@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace HotelManagement.Api.Application.Validations
 {
-    public class GetHotelByIdRequestValidator : AbstractValidator<GetHotelByIdRequest>
+    public class DeleteHotelRequestDtoValidator : AbstractValidator<DeleteHotelByIdRequestDto>
     {
-        public GetHotelByIdRequestValidator()
+        public DeleteHotelRequestDtoValidator()
         {
             RuleFor(request => request.Id).GreaterThan(0);
         }

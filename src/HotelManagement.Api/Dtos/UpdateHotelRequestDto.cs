@@ -1,9 +1,9 @@
-﻿using HotelManagement.Application.Models;
+﻿using HotelManagement.Application.Models.Entity;
 using MediatR;
 
 namespace HotelManagement.Api.Requests
 {
-    public class CreateHotelRequest : IRequest<HotelModel>
+    public class UpdateHotelRequestDto : IRequest
     {
         public HotelModel Hotel { get; set; }
     }

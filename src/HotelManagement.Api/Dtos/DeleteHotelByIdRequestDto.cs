@@ -2,7 +2,7 @@
 
 namespace HotelManagement.Api.Requests
 {
-    public class DeleteHotelByIdRequest : IRequest
+    public class DeleteHotelByIdRequestDto : IRequest
     {
         public int Id { get; set; }
     }

@@ -1,6 +1,7 @@
 ﻿using HotelManagement.Api.Requests;
 using HotelManagement.Application.Interfaces;
 using HotelManagement.Application.Models;
+using HotelManagement.Application.Models.Entity;
 using HotelManagement.Core.Paging;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,7 +38,7 @@ namespace HotelManagement.Api.Controllers
         [Route("[action]")]
         [HttpPost]
         [ProducesResponseType(typeof(IEnumerable<HotelModel>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<HotelRoomModel>>> AdvancedRoomSearch(AdvancedRoomSearchRequest request)
+        public async Task<ActionResult<IEnumerable<HotelRoomModel>>> AdvancedRoomSearch(AdvancedRoomSearchRequestDto request)
         {
             var sortingOptions = new List<SortingOption>
             {
@@ -92,10 +93,10 @@ namespace HotelManagement.Api.Controllers
 
         [Route("[action]")]
         [HttpPost]
-        [ProducesResponseType(typeof(IEnumerable<HotelModel>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<IEnumerable<HotelRoomAvailabilityModel>>> RoomAvailabilityCheck(RoomAvailabilityCheckRequest request)
+        [ProducesResponseType(typeof(IEnumerable<HotelRoomAvailabilityModel>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<HotelRoomAvailabilityModel>>> RoomAvailabilityCheck(RoomAvailabilityCheckRequestDto request)
         {
-            var hotelRoomAvailabilities = await _hotelRoomService.RoomAvailabilityCheck(request.HotelIds, request.RoomTypeIds, request.RequestedRoomCount);
+            var hotelRoomAvailabilities = await _hotelRoomService.RoomAvailabilityCheck(request.Args);
 
             return Ok(hotelRoomAvailabilities);
         }

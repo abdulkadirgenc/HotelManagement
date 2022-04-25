@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace HotelManagement.Api.Application.Validations
 {
-    public class SearchHotelsRequestValidator : AbstractValidator<SearchPageRequest>
+    public class SearchHotelsRequestDtoValidator : AbstractValidator<SearchPageRequestDto>
     {
-        public SearchHotelsRequestValidator()
+        public SearchHotelsRequestDtoValidator()
         {
             RuleFor(request => request.Args).NotNull();
             RuleFor(request => request.Args.PageIndex).GreaterThan(0);

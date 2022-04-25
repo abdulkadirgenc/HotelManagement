@@ -1,4 +1,4 @@
-﻿namespace HotelManagement.Application.Models.Base
+﻿namespace HotelManagement.Application.Models.Entity.Base
 {
     public class EnumModel
     {

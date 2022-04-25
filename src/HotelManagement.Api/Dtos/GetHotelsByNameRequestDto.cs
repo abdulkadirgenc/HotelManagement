@@ -1,6 +1,6 @@
 ﻿namespace HotelManagement.Api.Requests
 {
-    public class GetHotelsByNameRequest
+    public class GetHotelsByNameRequestDto
     {
         public string Name { get; set; }
     }

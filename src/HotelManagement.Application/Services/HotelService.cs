@@ -1,5 +1,4 @@
 ﻿using HotelManagement.Application.Mapper;
-using HotelManagement.Application.Models;
 using HotelManagement.Core.Entities;
 using HotelManagement.Core.Interfaces;
 using HotelManagement.Core.Paging;
@@ -7,6 +6,7 @@ using HotelManagement.Core.Repositories;
 using HotelManagement.Infrastructure.Paging;
 using HotelManagement.Application.Interfaces;
 using HotelManagement.Core.Specifications;
+using HotelManagement.Application.Models.Entity;
 
 namespace HotelManagement.Application.Services
 {

@@ -15,7 +15,6 @@ using System.Text;
 using Microsoft.Extensions.Hosting;
 using HotelManagement.Infrastructure.Misc;
 using HotelManagement.Infrastructure.IoC;
-using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
 
@@ -129,6 +128,29 @@ namespace HotelManagement.Infrastructure.Extensions
                         Name = "Use under LICX",
                         Url = new Uri("https://example.com/license")
                     }
+                });
+
+                var jwtSecurityScheme = new OpenApiSecurityScheme
+                {
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Description = "HTTP/HTTPS Bearer",
+
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+
+                options.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { jwtSecurityScheme, Array.Empty<string>() }
                 });
             });
 

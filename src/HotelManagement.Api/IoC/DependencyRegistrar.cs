@@ -18,7 +18,7 @@ namespace HotelManagement.Api.IoC
                 .AsClosedTypesOf(typeof(IRequestHandler<,>));
 
             // Register the Command's Validators (Validators based on FluentValidation library)
-            builder.RegisterAssemblyTypes(typeof(CreateHotelRequestValidator).GetTypeInfo().Assembly)
+            builder.RegisterAssemblyTypes(typeof(CreateHotelRequestDtoValidator).GetTypeInfo().Assembly)
                 .Where(t => t.IsClosedTypeOf(typeof(IValidator<>)))
                 .AsImplementedInterfaces();
         }

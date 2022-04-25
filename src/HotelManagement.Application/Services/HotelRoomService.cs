@@ -1,6 +1,7 @@
 ﻿using HotelManagement.Application.Interfaces;
 using HotelManagement.Application.Mapper;
 using HotelManagement.Application.Models;
+using HotelManagement.Application.Models.Entity;
 using HotelManagement.Core.Interfaces;
 using HotelManagement.Core.Paging;
 using HotelManagement.Core.Repositories;
@@ -45,9 +46,9 @@ namespace HotelManagement.Application.Services
             return hotelRoomModelPagedList;
         }
 
-        public async Task<IEnumerable<HotelRoomAvailabilityModel>> RoomAvailabilityCheck(List<int> hotelIds, List<int> roomTypeIds, int requestedRoomCount)
+        public async Task<IEnumerable<HotelRoomAvailabilityModel>> RoomAvailabilityCheck(AvailabilitySearchArgs args)
         {
-            var hotelRoomAvailabilities = await _hotelRoomRepository.RoomAvailabilityCheck(hotelIds, roomTypeIds, requestedRoomCount);
+            var hotelRoomAvailabilities = await _hotelRoomRepository.RoomAvailabilityCheck(args.HotelIds, args.RoomTypeIds, args.RequestedRoomCount);
 
             var hotelRoomAvailabilityModels = hotelRoomAvailabilities.ToList().Select(availability => new HotelRoomAvailabilityModel
             {

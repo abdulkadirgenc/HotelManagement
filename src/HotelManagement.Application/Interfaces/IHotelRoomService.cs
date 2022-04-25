@@ -1,4 +1,5 @@
 ﻿using HotelManagement.Application.Models;
+using HotelManagement.Application.Models.Entity;
 using HotelManagement.Core.Paging;
 
 namespace HotelManagement.Application.Interfaces
@@ -7,6 +8,6 @@ namespace HotelManagement.Application.Interfaces
     {
         Task<IEnumerable<HotelRoomModel>> GetCheapestRoomPrices();
         Task<IPagedList<HotelRoomModel>> SearchHotelRooms(PageSearchArgs args);
-        Task<IEnumerable<HotelRoomAvailabilityModel>> RoomAvailabilityCheck(List<int> hotelIds, List<int> roomTypeIds, int requestedRoomCount);
+        Task<IEnumerable<HotelRoomAvailabilityModel>> RoomAvailabilityCheck(AvailabilitySearchArgs args);
     }
 }

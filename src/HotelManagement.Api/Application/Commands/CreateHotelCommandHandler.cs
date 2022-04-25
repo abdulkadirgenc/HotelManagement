@@ -1,12 +1,12 @@
 ﻿using HotelManagement.Api.Requests;
 using HotelManagement.Application.Interfaces;
-using HotelManagement.Application.Models;
+using HotelManagement.Application.Models.Entity;
 using MediatR;
 
 namespace HotelManagement.Api.Application.Commands
 {
     public class CreateHotelCommandHandler
-        : IRequestHandler<CreateHotelRequest, HotelModel>
+        : IRequestHandler<CreateHotelRequestDto, HotelModel>
     {
         private readonly IHotelService _hotelService;
 
@@ -15,7 +15,7 @@ namespace HotelManagement.Api.Application.Commands
             _hotelService = hotelService;
         }
 
-        public async Task<HotelModel> Handle(CreateHotelRequest request, CancellationToken cancellationToken)
+        public async Task<HotelModel> Handle(CreateHotelRequestDto request, CancellationToken cancellationToken)
         {
             var hotelModel = await _hotelService.CreateHotel(request.Hotel);
 

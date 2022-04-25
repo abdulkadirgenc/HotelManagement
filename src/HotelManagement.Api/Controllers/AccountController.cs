@@ -30,7 +30,7 @@ namespace HotelManagement.Api.Controllers
 
         [Route("[action]")]
         [HttpPost]
-        public async Task<IActionResult> CreateToken([FromBody] LoginRequest request)
+        public async Task<IActionResult> CreateToken([FromBody] LoginRequestDto request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
 

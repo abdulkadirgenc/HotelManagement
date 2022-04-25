@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace HotelManagement.Api.Application.Validations
 {
-    public class CreateHotelRequestValidator : AbstractValidator<CreateHotelRequest>
+    public class UpdateHotelRequestDtoValidator : AbstractValidator<UpdateHotelRequestDto>
     {
-        public CreateHotelRequestValidator()
+        public UpdateHotelRequestDtoValidator()
         {
             RuleFor(request => request.Hotel).NotNull();
         }
