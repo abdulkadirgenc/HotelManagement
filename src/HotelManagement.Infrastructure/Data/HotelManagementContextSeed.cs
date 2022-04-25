@@ -99,7 +99,7 @@ namespace HotelManagement.Infrastructure.Data
                                      RoomType = roomType,
                                      Price = 300 + (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode())) % 500,
                                      MaxAllotment = 50 + (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode())) % 60,
-                                     SoldAllotment = (Math.Abs(hotel.Name.GetHashCode() * roomType.Name.GetHashCode())) % 8,
+                                     SoldAllotment = 0,
                                  };
 
                 await _hotelRoomRepository.AddRangeAsync(hotelRooms);

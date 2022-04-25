@@ -1,7 +1,5 @@
 ﻿using HotelManagement.Application.Interfaces;
-using HotelManagement.Application.Mapper;
 using HotelManagement.Application.Models;
-using HotelManagement.Application.Models.Entity;
 using HotelManagement.Core.Entities;
 using HotelManagement.Core.Interfaces;
 using HotelManagement.Core.Repositories;
@@ -37,7 +35,7 @@ namespace HotelManagement.Application.Services
                 return new CreateReservationResponse
                 {
                     Success = false,
-                    Message = "Hotel Not Found!"
+                    Message = "Hotel Not Found"
                 };
             }
 
@@ -46,7 +44,7 @@ namespace HotelManagement.Application.Services
                 return new CreateReservationResponse
                 {
                     Success = false,
-                    Message = "Not enough room for reservation!"
+                    Message = "Not enough room for reservation"
                 };
             }
 
@@ -74,7 +72,38 @@ namespace HotelManagement.Application.Services
                 //Reservation = newReservation,
                 ReservationId = newReservation.Id,
                 Success = true,
-                Message = "Successfully booked!"
+                Message = "Successfully booked"
+            };
+        }
+
+        public async Task<CancelReservationResponse> CancelReservation(int reservationId)
+        {
+            var existingReservation = await _reservationRepository.GetByIdAsync(reservationId);
+            if (existingReservation == null)
+            {
+                return new CancelReservationResponse
+                {
+                    Success = false,
+                    Message = "Reservation with this id is not exists"
+                };
+                //throw new ApplicationException("Reservation with this id is not exists");
+            }
+
+            // Delete reservation
+            await _reservationRepository.DeleteAsync(existingReservation);
+
+            // Update hotel room
+            var hotelRoom = await _hotelRoomRepository.GetByIdAsync(existingReservation.HotelRoomId);
+
+            hotelRoom.SoldAllotment -= existingReservation.RoomCount;
+
+            await _hotelRoomRepository.SaveAsync(hotelRoom);
+
+
+            return new CancelReservationResponse
+            {
+                Success = true,
+                Message = "Reservation with this id is not exists"
             };
         }
     }

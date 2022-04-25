@@ -33,5 +33,16 @@ namespace HotelManagement.Api.Controllers
 
             return Ok(commandResult);
         }
+
+        [Route("[action]")]
+        [HttpPost]
+        [ProducesResponseType(typeof(CancelReservationResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<CancelReservationResponse>> CancelReservation(CancelReservationRequestDto request)
+        {
+            var commandResult = await _mediator.Send(request);
+
+            return Ok(commandResult);
+        }
     }
 }
