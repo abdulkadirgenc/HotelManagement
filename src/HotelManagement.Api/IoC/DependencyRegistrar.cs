@@ -14,11 +14,11 @@ namespace HotelManagement.Api.IoC
         public void Register(ContainerBuilder builder, ITypeFinder typeFinder)
         {
             // Register all the Command classes (they implement IRequestHandler) in assembly holding the Commands
-            builder.RegisterAssemblyTypes(typeof(CreateHotelCommandHandler).GetTypeInfo().Assembly)
+            builder.RegisterAssemblyTypes(typeof(CreateReservationCommandHandler).GetTypeInfo().Assembly)
                 .AsClosedTypesOf(typeof(IRequestHandler<,>));
 
             // Register the Command's Validators (Validators based on FluentValidation library)
-            builder.RegisterAssemblyTypes(typeof(CreateHotelRequestDtoValidator).GetTypeInfo().Assembly)
+            builder.RegisterAssemblyTypes(typeof(CreateReservationRequestDtoValidator).GetTypeInfo().Assembly)
                 .Where(t => t.IsClosedTypeOf(typeof(IValidator<>)))
                 .AsImplementedInterfaces();
         }

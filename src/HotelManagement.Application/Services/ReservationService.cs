@@ -66,10 +66,8 @@ namespace HotelManagement.Application.Services
 
             newReservation = await _reservationRepository.SaveAsync(newReservation);
 
-            //var newReservationModel = ObjectMapper.Mapper.Map<ReservationModel>(newReservation);
             return new CreateReservationResponse
             {
-                //Reservation = newReservation,
                 ReservationId = newReservation.Id,
                 Success = true,
                 Message = "Successfully booked"
@@ -86,7 +84,6 @@ namespace HotelManagement.Application.Services
                     Success = false,
                     Message = "Reservation with this id is not exists"
                 };
-                //throw new ApplicationException("Reservation with this id is not exists");
             }
 
             // Delete reservation
@@ -95,6 +92,9 @@ namespace HotelManagement.Application.Services
             // Update hotel room
             var hotelRoom = await _hotelRoomRepository.GetByIdAsync(existingReservation.HotelRoomId);
 
+            //TODO: For data consistency, the record should be updated with SQL query.
+            //The following query should be used.
+            //UPDATE HotelRoom SET SoldAllotment = SoldAllotment - :RoomCount WHERE Id = :HotelId
             hotelRoom.SoldAllotment -= existingReservation.RoomCount;
 
             await _hotelRoomRepository.SaveAsync(hotelRoom);
